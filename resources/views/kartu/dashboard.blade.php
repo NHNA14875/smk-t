@@ -136,21 +136,52 @@ let selectedStatus = '';
 
 function toggleDD(btn) {
   const menu = btn.nextElementSibling;
-  document.querySelectorAll('.dropdown-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-  menu.classList.toggle('open');
+
+  // Tutup semua dropdown lain dulu
+  document.querySelectorAll('.dropdown-menu.open').forEach(m => {
+    if (m !== menu) {
+      m.classList.remove('open');
+      m.removeAttribute('style');
+    }
+  });
+
+  if (menu.classList.contains('open')) {
+    // Kalau sudah buka, tutup
+    menu.classList.remove('open');
+    menu.removeAttribute('style');
+  } else {
+    // Hitung posisi tombol relatif ke viewport
+    const rect = btn.getBoundingClientRect();
+    menu.style.cssText = `
+      position: fixed;
+      top: ${rect.bottom + 4}px;
+      right: ${window.innerWidth - rect.right}px;
+      left: auto;
+      z-index: 9999;
+    `;
+    menu.classList.add('open');
+  }
+
   event.stopPropagation();
 }
+
 document.addEventListener('click', () => {
-  document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.dropdown-menu.open').forEach(m => {
+    m.classList.remove('open');
+    m.removeAttribute('style');
+  });
 });
 
 function showModal(type, name, id) {
-  document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.dropdown-menu.open').forEach(m => {
+    m.classList.remove('open');
+    m.removeAttribute('style');
+  });
   selectedId = id;
   const cfg = {
-    hubungi:   { status:'Dihubungi',   title:'📞 Tandai Sudah Dihubungi',    body:`Tandai kartu milik <strong>${name}</strong> sudah dihubungi? Perubahan akan dicatat di log audit.`,                                                                              btn:'Konfirmasi',         btnCls:'btn btn-primary' },
-    diambil:   { status:'Diambil',     title:'✅ Kartu Diambil Nasabah',      body:`Konfirmasi kartu milik <strong>${name}</strong> sudah diambil setelah verifikasi identitas?`,                                                                                      btn:'Konfirmasi Diambil', btnCls:'btn btn-primary' },
-    musnahkan: { status:'Dimusnahkan', title:'⚠️ Konfirmasi Pemusnahan',      body:`<span style="color:var(--red)">Apakah Anda yakin memusnahkan kartu <strong>${name}</strong>? Tindakan ini <strong>tidak dapat dibatalkan</strong>.</span>`,                        btn:'Musnahkan Kartu',    btnCls:'btn btn-danger'  },
+    hubungi:   { status:'Dihubungi',   title:'📞 Tandai Sudah Dihubungi',   body:`Tandai kartu milik <strong>${name}</strong> sudah dihubungi? Perubahan akan dicatat di log audit.`,                                                                       btn:'Konfirmasi',         btnCls:'btn btn-primary' },
+    diambil:   { status:'Diambil',     title:'✅ Kartu Diambil Nasabah',     body:`Konfirmasi kartu milik <strong>${name}</strong> sudah diambil setelah verifikasi identitas?`,                                                                               btn:'Konfirmasi Diambil', btnCls:'btn btn-primary' },
+    musnahkan: { status:'Dimusnahkan', title:'⚠️ Konfirmasi Pemusnahan',     body:`<span style="color:var(--red)">Apakah Anda yakin memusnahkan kartu <strong>${name}</strong>? Tindakan ini <strong>tidak dapat dibatalkan</strong>.</span>`,               btn:'Musnahkan Kartu',    btnCls:'btn btn-danger'  },
   };
   const c = cfg[type];
   selectedStatus = c.status;
