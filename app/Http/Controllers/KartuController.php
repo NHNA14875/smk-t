@@ -7,6 +7,8 @@ use App\Models\KartuTertelan;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\RekapMingguanExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KartuController extends Controller
 {
@@ -90,5 +92,14 @@ class KartuController extends Controller
         $waktu = (object)['rata_rata' => 1, 'tercepat' => 1, 'terlama' => 1];
 
         return view('kartu.rekap', compact('stats', 'grafikAtm', 'waktu'));
+    }
+
+    public function exportExcel()
+    {
+        // Ambil data rekap (Sesuaikan query ini dengan query yang Anda gunakan pada halaman rekap mingguan)
+        $data = \App\Models\KartuTertelan::all(); 
+
+        // Proses unduh langsung dengan format .xlsx
+        return Excel::download(new RekapMingguanExport($data), 'Rekap_Mingguan_SMKT.xlsx');
     }
 }
