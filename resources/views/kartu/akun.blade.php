@@ -93,6 +93,10 @@
         <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">USERNAME</label>
         <input type="text" name="username" required placeholder="cth: satpam_02" style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none;">
       </div>
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">KATA SANDI (PASSWORD)</label>
+        <input type="password" name="password" required placeholder="Masukkan kata sandi akun" style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none;">
+      </div>
       <div style="margin-bottom: 24px;">
         <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">ROLE (PERAN)</label>
         <select name="role" required style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; background: white; cursor: pointer;">
@@ -141,7 +145,6 @@
 </div>
 
 <script>
-// Fungsi Modal Tambah
 function showAddUserModal() {
   document.getElementById('modalAddUser').style.display = 'flex';
 }
@@ -149,7 +152,6 @@ function closeAddUserModal() {
   document.getElementById('modalAddUser').style.display = 'none';
 }
 
-// Fungsi Modal Edit (Mengisi data lama secara otomatis)
 function showEditUserModal(id, nama, username, role) {
   document.getElementById('formEditUser').action = "{{ url('/akun') }}/" + id;
   document.getElementById('editNama').value = nama;
