@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Arsip Riwayat Kartu')
+@section('title', 'Arsip Riwayat')
 
 @section('content')
 <div class="page-hdr">
@@ -13,46 +13,50 @@
 <div class="card">
   <div class="card-header">
     <span class="card-title">Riwayat Selesai</span>
-    <input type="text" class="search-box" id="searchArsip" placeholder="🔍 Cari nama..." oninput="filterArsip()">
+    <input class="search-box" id="searchArsip" placeholder="🔍 Cari nama..." oninput="filterArsip()">
     <select class="sel-filter" id="filterStatusArsip" onchange="filterArsip()">
       <option value="">Semua Status</option>
       <option value="Diambil">Diambil Nasabah</option>
       <option value="Dimusnahkan">Dimusnahkan</option>
     </select>
   </div>
-  
-  <div style="width: 100%;">
-    <table style="width:100%; border-collapse:collapse;">
+
+  <div class="tbl-wrap">
+    <table>
       <thead>
         <tr>
-          <th style="padding:12px 14px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:left;">No. Kartu</th>
-          <th style="padding:12px 14px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:left;">Nama Nasabah</th>
-          <th style="padding:12px 14px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:left;">Tgl. Masuk</th>
-          <th style="padding:12px 14px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:left;">Tgl. Selesai</th>
-          <th style="padding:12px 14px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:left;">Status Akhir</th>
-          <th style="padding:12px 14px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; background:var(--bg3); border-bottom:1px solid var(--border); text-align:left;">Log</th>
+          <th>No. Kartu</th>
+          <th>Nama Nasabah</th>
+          <th>Tgl. Masuk</th>
+          <th>Tgl. Selesai</th>
+          <th>Status Akhir</th>
+          <th>Log</th>
         </tr>
       </thead>
       <tbody>
         @foreach($arsip as $row)
           @php
-            $badgeCls = $row->status_akhir === 'Diambil' ? 'var(--green-light)' : 'var(--red-light)';
-            $badgeTxt = $row->status_akhir === 'Diambil' ? '#0f4a27' : '#8b1a1a';
+            $badgeCls = $row->status_akhir === 'Diambil' ? 'b-green' : 'b-red';
             $dotColor = $row->status_akhir === 'Diambil' ? 'var(--green)' : 'var(--red)';
           @endphp
-          <tr class="arsip-row" data-nama="{{ strtolower($row->nama_nasabah) }}" data-status="{{ $row->status_akhir }}" style="border-bottom:1px solid var(--border);">
-            <td style="padding:14px;"><span style="font-family:'Courier New',monospace; font-size:13px; color:var(--text2);">{{ $row->nomor_kartu }}</span></td>
-            <td style="padding:14px;"><strong>{{ $row->nama_nasabah }}</strong></td>
-            <td style="padding:14px;"><span style="font-family:'Courier New',monospace; font-size:13px; color:var(--text2);">{{ $row->tanggal_masuk }}</span></td>
-            <td style="padding:14px;"><span style="font-family:'Courier New',monospace; font-size:13px; color:var(--text2);">{{ $row->tanggal_selesai }}</span></td>
-            <td style="padding:14px;">
-              <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; background:{{ $badgeCls }}; color:{{ $badgeTxt }};">
-                <span style="width:5px; height:5px; border-radius:50%; background:{{ $dotColor }};"></span>
+          <tr class="arsip-row"
+              data-nama="{{ strtolower($row->nama_nasabah) }}"
+              data-status="{{ $row->status_akhir }}">
+            <td><span class="mono">{{ $row->nomor_kartu }}</span></td>
+            <td><strong>{{ $row->nama_nasabah }}</strong></td>
+            <td><span class="mono">{{ $row->tanggal_masuk }}</span></td>
+            <td><span class="mono">{{ $row->tanggal_selesai }}</span></td>
+            <td>
+              <span class="badge {{ $badgeCls }}">
+                <span class="bdot" style="background:{{ $dotColor }}"></span>
                 {{ $row->status_akhir }}
               </span>
             </td>
-            <td style="padding:14px;">
-              <button class="btn btn-outline btn-sm" onclick="showLogModal('{{ $row->nama_nasabah }}', '{{ $row->nomor_kartu }}')">📋 Log</button>
+            <td>
+              <button class="btn btn-outline btn-sm"
+                      onclick="showLogModal('{{ $row->nama_nasabah }}','{{ $row->nomor_kartu }}')">
+                📋 Log
+              </button>
             </td>
           </tr>
         @endforeach
@@ -62,16 +66,33 @@
 </div>
 
 <div class="modal-backdrop" id="modalLog" onclick="closeLogModal()">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <div style="font-size:16px; font-weight:700; margin-bottom:8px;">📋 Log Audit — Kartu <span id="logNoKartu"></span></div>
-    <div style="font-size:12px; color:var(--text3); margin-bottom:14px; font-family:'Courier New',monospace;">Nasabah: <span id="logNama"></span></div>
-    <div style="display:flex; flex-direction:column;">
-      <div style="display:flex; gap:12px; padding:10px 0;">
-        <div><div style="width:10px; height:10px; border-radius:50%; background:var(--teal);"></div></div>
-        <div><div style="font-size:13px; font-weight:600;">Status Akhir Tercapai</div></div>
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:440px">
+    <div class="modal-title">📋 Log Audit — Kartu <span id="logNoKartu"></span></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px;font-family:'Courier New',monospace">
+      Nasabah: <span id="logNama"></span>
+    </div>
+    <div class="log-list">
+      <div class="log-item">
+        <div class="log-dot-col">
+          <div class="log-dot" style="background:var(--teal)"></div>
+          <div class="log-line"></div>
+        </div>
+        <div>
+          <div class="log-action">Input — Status: Disimpan</div>
+          <div class="log-meta">Data tercatat di sistem</div>
+        </div>
+      </div>
+      <div class="log-item">
+        <div class="log-dot-col">
+          <div class="log-dot" style="background:var(--green)"></div>
+        </div>
+        <div>
+          <div class="log-action">Status Akhir Tercapai</div>
+          <div class="log-meta">Proses selesai</div>
+        </div>
       </div>
     </div>
-    <div style="margin-top:16px; text-align:right;">
+    <div class="modal-footer" style="margin-top:16px">
       <button class="btn btn-outline" onclick="closeLogModal()">Tutup</button>
     </div>
   </div>
@@ -82,18 +103,16 @@ function filterArsip() {
   const searchVal = document.getElementById('searchArsip').value.toLowerCase();
   const statusVal = document.getElementById('filterStatusArsip').value;
   document.querySelectorAll('.arsip-row').forEach(row => {
-    const nama = row.getAttribute('data-nama');
-    const status = row.getAttribute('data-status');
-    row.style.display = (nama.includes(searchVal) && (statusVal === '' || status === statusVal)) ? '' : 'none';
+    const match = row.getAttribute('data-nama').includes(searchVal)
+      && (statusVal === '' || row.getAttribute('data-status') === statusVal);
+    row.style.display = match ? '' : 'none';
   });
 }
-
 function showLogModal(nama, noKartu) {
   document.getElementById('logNama').textContent = nama;
   document.getElementById('logNoKartu').textContent = noKartu;
   document.getElementById('modalLog').classList.add('open');
 }
-
 function closeLogModal() {
   document.getElementById('modalLog').classList.remove('open');
 }
