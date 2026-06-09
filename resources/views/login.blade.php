@@ -26,11 +26,11 @@
   @csrf
   <div class="form-group" style="margin-bottom:14px;">
     <label class="form-label">USERNAME</label>
-    <input class="form-input" id="loginUser" name="username" value="satpam_budi" placeholder="Masukkan username" required>
+    <input class="form-input" id="loginUser" name="username" value="" placeholder="Masukkan username" required>
   </div>
   <div class="form-group" style="margin-bottom:14px;">
     <label class="form-label">PASSWORD</label>
-    <input class="form-input" type="password" name="password" value="password" placeholder="Masukkan password" required>
+    <input class="form-input" type="password" name="password" value="" placeholder="Masukkan password" required>
   </div>
   
   @error('username')
