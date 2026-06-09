@@ -4,25 +4,26 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KartuController;
+use App\Http\Controllers\AkunController;
 
-// --- RUTE GUEST (Belum Login) ---
-Route::get('/', function () { 
-    return view('login'); 
+// --- RUTE GUEST ---
+Route::get('/', function () {
+    return view('login');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout']);
 
-// --- RUTE SISTEM TERPROTEKSI ---
+// --- RUTE TERPROTEKSI ---
 Route::middleware('auth')->group(function () {
-    
-    // 1. Akses Universal (Bisa diakses Satpam, CS, dan Admin)
-    Route::get('/input', function () { 
-        return view('kartu.input'); 
+
+    // Semua role
+    Route::get('/input', function () {
+        return view('kartu.input');
     });
     Route::post('/input', [KartuController::class, 'simpan']);
-    
-    // 2. Akses Khusus CS dan Admin
+
+    // CS dan Admin
     Route::get('/dashboard', function () {
         if (!in_array(auth()->user()->role, ['cs', 'admin'])) abort(403);
         return app(KartuController::class)->dashboard();
@@ -43,9 +44,9 @@ Route::middleware('auth')->group(function () {
         return app(KartuController::class)->rekap();
     });
 
-    // 3. Akses Super Khusus Admin
-    Route::get('/akun', function () {
-        if (auth()->user()->role !== 'admin') abort(403);
-        return view('kartu.akun');
-    });
+    // Admin only — Manajemen Akun
+    Route::get('/akun',                    [AkunController::class, 'index']);
+    Route::post('/akun',                   [AkunController::class, 'store']);
+    Route::put('/akun/{id}',               [AkunController::class, 'update']);
+    Route::patch('/akun/{id}/toggle',      [AkunController::class, 'toggleActive']);
 });
