@@ -11,21 +11,22 @@
 </div>
 
 <div class="card" style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: var(--shadow); margin-bottom: 20px;">
-  <div class="card-header" style="padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-    <span class="card-title" style="font-weight: 700; color: var(--text);">Daftar Akun Terdaftar</span>
-    <button class="btn btn-primary" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="showAddUserModal()">
-      ➕ Tambah Akun Baru
+  
+  <div style="padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="font-weight: 700; color: var(--text); font-size: 15px; white-space: nowrap;">Daftar Akun Terdaftar</div>
+    <button class="btn btn-primary" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;" onclick="showAddUserModal()">
+      ➕ Tambah Akun
     </button>
   </div>
   
   <div style="width: 100%; overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse; min-width: 560px;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 650px;">
       <thead>
         <tr>
-          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Nama Petugas</th>
-          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Username</th>
-          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Peran / Role</th>
-          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Aksi</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left; width: 25%;">Nama Petugas</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left; width: 25%;">Username</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left; width: 20%;">Peran / Role</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left; width: 30%;">Aksi</th>
         </tr>
       </thead>
       <tbody>
@@ -40,27 +41,31 @@
                 elseif(strtolower($u->role) === 'cs') { $roleBg = 'var(--purple-light)'; $roleColor = 'var(--purple)'; }
                 elseif(strtolower($u->role) === 'satpam') { $roleBg = 'var(--teal-light)'; $roleColor = 'var(--teal)'; }
               @endphp
-              <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: {{ $roleBg }}; color: {{ $roleColor }};">
+              <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: {{ $roleBg }}; color: {{ $roleColor }}; white-space: nowrap;">
                 {{ strtoupper($u->role) }}
               </span>
             </td>
             <td style="padding: 14px 16px;">
-              <form action="{{ url('/akun/reset/'.$u->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin mereset kata sandi akun ini kembali menjadi \'password\'?')">
-                @csrf
-                <button type="submit" style="background: white; border: 1px solid #d1d5db; color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
-                  🔄 Reset Pass
-                </button>
-              </form>
+              
+              <div style="display: flex; flex-direction: row; gap: 8px; align-items: center;">
+                <form action="{{ url('/akun/reset/'.$u->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Yakin ingin mereset kata sandi akun ini kembali menjadi \'password\'?')">
+                  @csrf
+                  <button type="submit" style="background: white; border: 1px solid #d1d5db; color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                    🔄 Reset Pass
+                  </button>
+                </form>
 
-              @if($u->id !== Auth::id())
-              <form action="{{ url('/akun/'.$u->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Hapus akun ini dari sistem?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" style="background: var(--red-light); border: 1px solid rgba(220,53,69,.2); color: var(--red); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; margin-left: 4px;">
-                  🗑 Hapus
-                </button>
-              </form>
-              @endif
+                @if($u->id !== Auth::id())
+                <form action="{{ url('/akun/'.$u->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Hapus akun ini dari sistem?')">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" style="background: var(--red-light); border: 1px solid rgba(220,53,69,.2); color: var(--red); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                    🗑 Hapus
+                  </button>
+                </form>
+                @endif
+              </div>
+
             </td>
           </tr>
         @endforeach
