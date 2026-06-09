@@ -1,259 +1,110 @@
 @extends('layouts.app')
 
-@section('title', 'Manajemen Akun Petugas')
+@section('title', 'Manajemen Akun')
 
 @section('content')
-
-{{-- Flash Messages --}}
-@if(session('success'))
-<div class="alert-banner alert-success">
-  <span class="ico">✅</span>
-  <div class="txt"><strong>{{ session('success') }}</strong></div>
-</div>
-@endif
-
-@if(session('error'))
-<div class="alert-banner">
-  <span class="ico">⚠️</span>
-  <div class="txt"><strong>{{ session('error') }}</strong></div>
-</div>
-@endif
-
-<div class="page-hdr">
+<div class="page-hdr" style="margin-bottom: 20px;">
   <div>
-    <div class="page-title">Manajemen Akun Petugas</div>
-    <div class="page-sub">Kelola akun login untuk semua petugas.</div>
-  </div>
-  <button class="btn btn-primary btn-sm" onclick="openTambah()">➕ Tambah Akun</button>
-</div>
-
-{{-- Grid Akun --}}
-<div class="akun-grid">
-  @foreach($users as $u)
-    @php
-      $color  = $u->role === 'admin' ? 'amber' : ($u->role === 'cs' ? 'purple' : 'teal');
-      $badge  = $u->role === 'admin' ? 'b-amber' : ($u->role === 'cs' ? 'b-purple' : 'b-teal');
-      $inits  = strtoupper(substr($u->nama, 0, 2));
-      $isSelf = $u->id === Auth::id();
-    @endphp
-    <div class="akun-card" style="{{ !$u->is_active ? 'opacity:.55' : '' }}">
-      <div class="akun-avatar" style="background:var(--{{ $color }}-light);color:var(--{{ $color }})">
-        {{ $inits }}
-      </div>
-      <div style="flex:1;min-width:0">
-        <div class="akun-name" style="{{ !$u->is_active ? 'text-decoration:line-through;color:var(--text3)' : '' }}">
-          {{ $u->nama }}
-        </div>
-        <div class="akun-user">{{ $u->username }}</div>
-        <span class="badge {{ $badge }}">{{ $u->role }}</span>
-        @if(!$u->is_active)
-          <span class="badge b-gray" style="margin-left:3px">nonaktif</span>
-        @endif
-      </div>
-      <div class="akun-actions">
-        {{-- Tombol Edit --}}
-        <button class="btn btn-icon"
-                onclick="openEdit('{{ $u->id }}','{{ addslashes($u->nama) }}','{{ $u->username }}','{{ $u->role }}')"
-                title="Edit akun">✏️</button>
-
-        {{-- Tombol Aktif/Nonaktif (tidak tampil untuk akun sendiri) --}}
-        @if(!$isSelf)
-        <form method="POST" action="/akun/{{ $u->id }}/toggle" style="display:inline;margin:0">
-          @csrf
-          @method('PATCH')
-          <button type="submit" class="btn btn-icon"
-                  style="color:{{ $u->is_active ? 'var(--red)' : 'var(--green)' }}"
-                  title="{{ $u->is_active ? 'Nonaktifkan' : 'Aktifkan kembali' }}">
-            {{ $u->is_active ? '🚫' : '✅' }}
-          </button>
-        </form>
-        @endif
-      </div>
-    </div>
-  @endforeach
-
-  <div class="akun-card akun-add" onclick="openTambah()">
-    <div style="font-size:22px;margin-bottom:4px">➕</div>
-    <div style="font-size:12px;color:var(--text3)">Tambah Akun Baru</div>
+    <div class="page-title" style="font-size: 20px; font-weight: 700; color: var(--text);">Manajemen Akun</div>
+    <div class="page-sub" style="font-size: 13px; color: var(--text2); margin-top: 4px;">Kelola akses dan kata sandi petugas.</div>
   </div>
 </div>
 
-{{-- ===== MODAL TAMBAH AKUN ===== --}}
-<div class="modal-backdrop" id="modalTambah" onclick="closeTambah()">
-  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:440px">
-    <div class="modal-title">➕ Tambah Akun Baru</div>
-    <form method="POST" action="/akun">
-      @csrf
-      <input type="hidden" name="_form_type" value="tambah">
-
-      <div class="form-group">
-        <label class="form-label">NAMA LENGKAP <span style="color:var(--red)">*</span></label>
-        <input class="form-input {{ $errors->tambah->has('nama') ? 'error' : '' }}"
-               name="nama" value="{{ old('nama') }}" placeholder="cth: Satpam Budi" required>
-        @if($errors->tambah->has('nama'))
-          <div class="err-msg show">{{ $errors->tambah->first('nama') }}</div>
-        @endif
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">USERNAME <span style="color:var(--red)">*</span></label>
-        <input class="form-input {{ $errors->tambah->has('username') ? 'error' : '' }}"
-               name="username" value="{{ old('username') }}" placeholder="cth: satpam_02" required>
-        @if($errors->tambah->has('username'))
-          <div class="err-msg show">{{ $errors->tambah->first('username') }}</div>
-        @endif
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">ROLE <span style="color:var(--red)">*</span></label>
-        <select class="form-select {{ $errors->tambah->has('role') ? 'error' : '' }}" name="role" required>
-          <option value="">-- Pilih role --</option>
-          <option value="satpam" {{ old('role') == 'satpam' ? 'selected' : '' }}>Satpam</option>
-          <option value="cs"     {{ old('role') == 'cs'     ? 'selected' : '' }}>Customer Service</option>
-          <option value="admin"  {{ old('role') == 'admin'  ? 'selected' : '' }}>Admin</option>
-        </select>
-        @if($errors->tambah->has('role'))
-          <div class="err-msg show">{{ $errors->tambah->first('role') }}</div>
-        @endif
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">PASSWORD <span style="color:var(--red)">*</span></label>
-        <input class="form-input {{ $errors->tambah->has('password') ? 'error' : '' }}"
-               type="password" name="password" placeholder="Minimal 6 karakter" required>
-        @if($errors->tambah->has('password'))
-          <div class="err-msg show">{{ $errors->tambah->first('password') }}</div>
-        @endif
-      </div>
-
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">KONFIRMASI PASSWORD <span style="color:var(--red)">*</span></label>
-        <input class="form-input" type="password" name="password_confirmation"
-               placeholder="Ulangi password" required>
-      </div>
-
-      <div class="modal-footer" style="margin-top:20px">
-        <button type="button" class="btn btn-outline" onclick="closeTambah()">Batal</button>
-        <button type="submit" class="btn btn-primary">💾 Simpan Akun</button>
-      </div>
-    </form>
+<div class="card" style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: var(--shadow); margin-bottom: 20px;">
+  <div class="card-header" style="padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <span class="card-title" style="font-weight: 700; color: var(--text);">Daftar Akun Terdaftar</span>
+    <button class="btn btn-primary" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="showAddUserModal()">
+      ➕ Tambah Akun Baru
+    </button>
   </div>
-</div>
+  
+  <div style="width: 100%; overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 560px;">
+      <thead>
+        <tr>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Nama Petugas</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Username</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Peran / Role</th>
+          <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left;">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($users as $u)
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 14px 16px;"><strong>{{ $u->nama }}</strong></td>
+            <td style="padding: 14px 16px;"><span style="font-family: 'Courier New', monospace; font-size: 13px; color: var(--text2);">{{ $u->username }}</span></td>
+            <td style="padding: 14px 16px;">
+              @php
+                $roleBg = 'var(--bg3)'; $roleColor = 'var(--text2)';
+                if(strtolower($u->role) === 'admin') { $roleBg = 'var(--amber-light)'; $roleColor = '#b37000'; }
+                elseif(strtolower($u->role) === 'cs') { $roleBg = 'var(--purple-light)'; $roleColor = 'var(--purple)'; }
+                elseif(strtolower($u->role) === 'satpam') { $roleBg = 'var(--teal-light)'; $roleColor = 'var(--teal)'; }
+              @endphp
+              <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: {{ $roleBg }}; color: {{ $roleColor }};">
+                {{ strtoupper($u->role) }}
+              </span>
+            </td>
+            <td style="padding: 14px 16px;">
+              <form action="{{ url('/akun/reset/'.$u->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin mereset kata sandi akun ini kembali menjadi \'password\'?')">
+                @csrf
+                <button type="submit" style="background: white; border: 1px solid #d1d5db; color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+                  🔄 Reset Pass
+                </button>
+              </form>
 
-{{-- ===== MODAL EDIT AKUN ===== --}}
-<div class="modal-backdrop" id="modalEdit" onclick="closeEdit()">
-  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:440px">
-    <div class="modal-title">✏️ Edit Akun</div>
-
-    @if($errors->edit->any())
-    <div class="alert-banner" style="margin-bottom:14px;padding:10px 12px">
-      <span class="ico" style="font-size:14px">⚠️</span>
-      <div class="txt" style="font-size:12px">
-        @foreach($errors->edit->all() as $err)
-          {{ $err }}<br>
+              @if($u->id !== Auth::id())
+              <form action="{{ url('/akun/'.$u->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Hapus akun ini dari sistem?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" style="background: var(--red-light); border: 1px solid rgba(220,53,69,.2); color: var(--red); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; margin-left: 4px;">
+                  🗑 Hapus
+                </button>
+              </form>
+              @endif
+            </td>
+          </tr>
         @endforeach
-      </div>
-    </div>
-    @endif
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <form method="POST" id="formEdit" action="">
+<div class="modal-backdrop" id="modalAddUser" onclick="closeAddUserModal()" style="position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(3px);">
+  <div class="modal-box" onclick="event.stopPropagation()" style="background: white; border-radius: 14px; padding: 24px; width: 100%; max-width: 400px; box-shadow: var(--shadow2);">
+    <div style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text);">➕ Tambah Akun Baru</div>
+    
+    <form action="{{ url('/akun') }}" method="POST">
       @csrf
-      @method('PUT')
-      <input type="hidden" name="_form_type" value="edit">
-      <input type="hidden" name="_edit_id"   id="editIdField">
-
-      <div class="form-group">
-        <label class="form-label">NAMA LENGKAP <span style="color:var(--red)">*</span></label>
-        <input class="form-input {{ $errors->edit->has('nama') ? 'error' : '' }}"
-               type="text" name="nama" id="editNama" placeholder="Nama lengkap" required>
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">NAMA LENGKAP</label>
+        <input type="text" name="nama" required placeholder="Nama petugas" style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none;">
       </div>
-
-      <div class="form-group">
-        <label class="form-label">USERNAME <span style="color:var(--red)">*</span></label>
-        <input class="form-input {{ $errors->edit->has('username') ? 'error' : '' }}"
-               type="text" name="username" id="editUsername" placeholder="Username" required>
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">USERNAME</label>
+        <input type="text" name="username" required placeholder="cth: satpam_02" style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none;">
       </div>
-
-      <div class="form-group">
-        <label class="form-label">ROLE <span style="color:var(--red)">*</span></label>
-        <select class="form-select" name="role" id="editRole" required>
-          <option value="satpam">Satpam</option>
-          <option value="cs">Customer Service</option>
-          <option value="admin">Admin</option>
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">ROLE (PERAN)</label>
+        <select name="role" required style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; background: white; cursor: pointer;">
+          <option value="satpam">Satpam (Input Data)</option>
+          <option value="cs">Customer Service (Kelola Kartu)</option>
+          <option value="admin">Administrator (Akses Penuh)</option>
         </select>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">
-          PASSWORD BARU
-          <span style="color:var(--text3);font-weight:400;font-size:11px">(kosongkan jika tidak diubah)</span>
-        </label>
-        <input class="form-input {{ $errors->edit->has('password') ? 'error' : '' }}"
-               type="password" name="password" id="editPassword"
-               placeholder="Minimal 6 karakter">
-        @if($errors->edit->has('password'))
-          <div class="err-msg show">{{ $errors->edit->first('password') }}</div>
-        @endif
-      </div>
-
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">KONFIRMASI PASSWORD BARU</label>
-        <input class="form-input" type="password" name="password_confirmation"
-               id="editPasswordConfirm" placeholder="Ulangi password baru">
-      </div>
-
-      <div class="modal-footer" style="margin-top:20px">
-        <button type="button" class="btn btn-outline" onclick="closeEdit()">Batal</button>
-        <button type="submit" class="btn btn-primary">💾 Simpan Perubahan</button>
+      <div style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" style="padding: 8px 16px; font-size: 13px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-weight: 600; color: var(--text);" onclick="closeAddUserModal()">Batal</button>
+        <button type="submit" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Simpan Akun</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-// ===== MODAL TAMBAH =====
-function openTambah() {
-  document.getElementById('modalTambah').classList.add('open');
+function showAddUserModal() {
+  document.getElementById('modalAddUser').style.display = 'flex';
 }
-function closeTambah() {
-  document.getElementById('modalTambah').classList.remove('open');
+function closeAddUserModal() {
+  document.getElementById('modalAddUser').style.display = 'none';
 }
-
-// ===== MODAL EDIT =====
-function openEdit(id, nama, username, role) {
-  document.getElementById('editIdField').value   = id;
-  document.getElementById('editNama').value      = nama;
-  document.getElementById('editUsername').value  = username;
-  document.getElementById('editRole').value      = role;
-  document.getElementById('formEdit').action     = `/akun/${id}`;
-  // Reset field password (tidak pernah di-prefill)
-  document.getElementById('editPassword').value        = '';
-  document.getElementById('editPasswordConfirm').value = '';
-  document.getElementById('modalEdit').classList.add('open');
-}
-function closeEdit() {
-  document.getElementById('modalEdit').classList.remove('open');
-}
-
-// ===== Auto-buka modal yang tepat jika ada error validasi =====
-@if($errors->tambah->any())
-  document.addEventListener('DOMContentLoaded', () => openTambah());
-
-@elseif($errors->edit->any())
-  @php
-    $editId = old('_edit_id');
-    $eu = $editId ? $users->firstWhere('id', $editId) : null;
-  @endphp
-  @if($eu)
-  document.addEventListener('DOMContentLoaded', () => {
-    openEdit(
-      '{{ $eu->id }}',
-      '{{ addslashes(old("nama", $eu->nama)) }}',
-      '{{ old("username", $eu->username) }}',
-      '{{ old("role", $eu->role) }}'
-    );
-  });
-  @endif
-@endif
 </script>
 @endsection
