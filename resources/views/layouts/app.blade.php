@@ -5,12 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>@yield('title') — SMK-T</title>
 <style>
-/* CSS Reset & Variabel */
+/* CSS Dasar & Reset */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#f5f6fa;--bg2:#ffffff;--text:#1a1d2e;--text2:#6b7280;
   --teal:#0f9e74;--teal-dim:rgba(15,158,116,0.1);
-  --shadow:0 1px 4px rgba(0,0,0,0.08);
 }
 body, html { height: 100%; font-family: 'Segoe UI', sans-serif; }
 
@@ -25,12 +24,17 @@ body, html { height: 100%; font-family: 'Segoe UI', sans-serif; }
 .s-item:hover, .s-item.active { background: var(--teal-dim); color: var(--teal); }
 .s-foot { padding: 16px; border-top: 1px solid #e5e7eb; }
 
-/* Main Content */
-.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.topbar { height: 60px; display: flex; align-items: center; padding: 0 20px; background: white; border-bottom: 1px solid #e5e7eb; }
+/* Main Content - Perbaikan Scroll */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.topbar { height: 60px; display: flex; align-items: center; padding: 0 20px; background: white; border-bottom: 1px solid #e5e7eb; flex-shrink: 0; }
+
+/* Content Wrapper - Hanya area ini yang memiliki scrollbar */
 .content { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); }
 
-/* Utility */
+/* Khusus Arsip agar tidak ada scroll internal */
+.content .card table { width: 100%; border-collapse: collapse; }
+.content .card .no-scroll { overflow-x: visible !important; }
+
 .s-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; margin-right: 10px; }
 </style>
 </head>
@@ -52,7 +56,6 @@ body, html { height: 100%; font-family: 'Segoe UI', sans-serif; }
       <a href="{{ url('/arsip') }}" class="s-item {{ Request::is('arsip') ? 'active' : '' }}">📁 Arsip Riwayat</a>
       <a href="{{ url('/rekap') }}" class="s-item {{ Request::is('rekap') ? 'active' : '' }}">📈 Rekap Mingguan</a>
 
-      {{-- Perbaikan: Gunakan strtolower agar tidak case-sensitive --}}
       @if(strtolower(Auth::user()->role) === 'admin')
       <div style="font-size:10px; color:var(--text2); padding:10px; margin-top:10px;">PENGATURAN</div>
       <a href="{{ url('/akun') }}" class="s-item {{ Request::is('akun') ? 'active' : '' }}">👥 Manajemen Akun</a>
