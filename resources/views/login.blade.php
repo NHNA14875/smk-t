@@ -26,11 +26,11 @@
   @csrf
   <div class="form-group" style="margin-bottom:14px;">
     <label class="form-label">USERNAME</label>
-    <input class="form-input" id="loginUser" name="username" value="satpam_budi" readonly>
+    <input class="form-input" id="loginUser" name="username" value="satpam_budi" placeholder="Masukkan username" required>
   </div>
   <div class="form-group" style="margin-bottom:14px;">
     <label class="form-label">PASSWORD</label>
-    <input class="form-input" type="password" name="password" value="password">
+    <input class="form-input" type="password" name="password" value="password" placeholder="Masukkan password" required>
   </div>
   
   @error('username')
@@ -45,7 +45,6 @@
 
 @section('scripts')
 <script>
-// Username disesuaikan dengan isi tabel "users" di database MySQL
 const roles = {
   satpam: { username: 'satpam_budi' },
   cs: { username: 'cs_siti' },
@@ -53,7 +52,6 @@ const roles = {
 };
 
 function setRole(roleName, element) {
-  // Hapus efek aktif dari semua tombol
   document.querySelectorAll('.role-tab').forEach(tab => {
     tab.style.background = 'transparent';
     tab.style.color = 'var(--text2)';
@@ -61,13 +59,12 @@ function setRole(roleName, element) {
     tab.style.fontWeight = '500';
   });
   
-  // Tambahkan efek aktif pada tombol yang diklik
   element.style.background = 'var(--bg2)';
   element.style.color = 'var(--teal)';
   element.style.boxShadow = 'var(--shadow)';
   element.style.fontWeight = '600';
   
-  // Ubah isi kotak input username secara dinamis
+  // Mengupdate nilai input yang sekarang sudah bisa diedit
   document.getElementById('loginUser').value = roles[roleName].username;
 }
 </script>
