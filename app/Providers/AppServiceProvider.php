@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\KartuTertelan; // Tambahkan ini jika belum ada
-use App\Observers\KartuObserver; // Tambahkan ini
+use App\Models\KartuTertelan;
+use App\Observers\KartuObserver;
+use Illuminate\Support\Facades\URL; // Tambahkan ini untuk akses URL facade
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,7 +22,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Daftarkan observer di sini
+        // 1. Daftarkan observer untuk log audit otomatis
         KartuTertelan::observe(KartuObserver::class);
+
+        // 2. Paksa penggunaan HTTPS jika aplikasi berjalan di environment production
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
