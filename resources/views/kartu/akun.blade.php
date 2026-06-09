@@ -6,7 +6,7 @@
 <div class="page-hdr" style="margin-bottom: 20px;">
   <div>
     <div class="page-title" style="font-size: 20px; font-weight: 700; color: var(--text);">Manajemen Akun</div>
-    <div class="page-sub" style="font-size: 13px; color: var(--text2); margin-top: 4px;">Kelola akses dan kata sandi petugas.</div>
+    <div class="page-sub" style="font-size: 13px; color: var(--text2); margin-top: 4px;">Kelola akses, kata sandi, dan peran petugas sistem.</div>
   </div>
 </div>
 
@@ -20,7 +20,7 @@
   </div>
   
   <div style="width: 100%; overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse; min-width: 650px;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 720px;">
       <thead>
         <tr>
           <th style="padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid #e5e7eb; text-align: left; width: 25%;">Nama Petugas</th>
@@ -47,7 +47,12 @@
             </td>
             <td style="padding: 14px 16px;">
               
-              <div style="display: flex; flex-direction: row; gap: 8px; align-items: center;">
+              <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
+                <button type="button" class="btn btn-outline" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; background: #f8f9fa;" 
+                        onclick="showEditUserModal('{{ $u->id }}', '{{ $u->nama }}', '{{ $u->username }}', '{{ $u->role }}')">
+                  ✏️ Edit
+                </button>
+
                 <form action="{{ url('/akun/reset/'.$u->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Yakin ingin mereset kata sandi akun ini kembali menjadi \'password\'?')">
                   @csrf
                   <button type="submit" style="background: white; border: 1px solid #d1d5db; color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
@@ -104,12 +109,56 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="modalEditUser" onclick="closeEditUserModal()" style="position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(3px);">
+  <div class="modal-box" onclick="event.stopPropagation()" style="background: white; border-radius: 14px; padding: 24px; width: 100%; max-width: 400px; box-shadow: var(--shadow2);">
+    <div style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text);">✏️ Edit Data Akun</div>
+    
+    <form id="formEditUser" action="" method="POST">
+      @csrf
+      @method('PUT')
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">NAMA LENGKAP</label>
+        <input type="text" id="editNama" name="nama" required placeholder="Nama petugas" style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none;">
+      </div>
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">USERNAME</label>
+        <input type="text" id="editUsername" name="username" required placeholder="cth: satpam_02" style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none;">
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px;">ROLE (PERAN)</label>
+        <select id="editRole" name="role" required style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; background: white; cursor: pointer;">
+          <option value="satpam">Satpam (Input Data)</option>
+          <option value="cs">Customer Service (Kelola Kartu)</option>
+          <option value="admin">Administrator (Akses Penuh)</option>
+        </select>
+      </div>
+      <div style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" style="padding: 8px 16px; font-size: 13px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-weight: 600; color: var(--text);" onclick="closeEditUserModal()">Batal</button>
+        <button type="submit" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+// Fungsi Modal Tambah
 function showAddUserModal() {
   document.getElementById('modalAddUser').style.display = 'flex';
 }
 function closeAddUserModal() {
   document.getElementById('modalAddUser').style.display = 'none';
+}
+
+// Fungsi Modal Edit (Mengisi data lama secara otomatis)
+function showEditUserModal(id, nama, username, role) {
+  document.getElementById('formEditUser').action = "{{ url('/akun') }}/" + id;
+  document.getElementById('editNama').value = nama;
+  document.getElementById('editUsername').value = username;
+  document.getElementById('editRole').value = role.toLowerCase();
+  document.getElementById('modalEditUser').style.display = 'flex';
+}
+function closeEditUserModal() {
+  document.getElementById('modalEditUser').style.display = 'none';
 }
 </script>
 @endsection
