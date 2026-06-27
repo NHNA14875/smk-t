@@ -117,4 +117,20 @@ class AkunController extends Controller
         $keterangan = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
         return redirect('/akun')->with('success', "Akun {$user->nama} berhasil {$keterangan}.");
     }
+
+    public function destroy($id)
+    {
+        $this->checkAdmin();
+        $user = User::findOrFail($id);
+
+        // Keamanan tambahan: Mencegah admin menghapus akunnya sendiri yang sedang dipakai login
+        if ($user->id === Auth::id()) {
+            return redirect('/akun')->with('error', 'Peringatan: Anda tidak dapat menghapus akun Anda sendiri saat sedang login.');
+        }
+
+        $namaUser = $user->nama;
+        $user->delete();
+
+        return redirect('/akun')->with('success', "Akun {$namaUser} berhasil dihapus permanen.");
+    }
 }
