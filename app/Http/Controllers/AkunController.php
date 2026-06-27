@@ -30,7 +30,7 @@ class AkunController extends Controller
             'nama'     => 'required|min:2|max:100',
             'username' => 'required|min:3|max:50|unique:users,username',
             'role'     => 'required|in:satpam,cs,admin',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:6',
         ], [
             'nama.required'      => 'Nama wajib diisi.',
             'nama.min'           => 'Nama minimal 2 karakter.',
@@ -40,7 +40,6 @@ class AkunController extends Controller
             'role.required'      => 'Role wajib dipilih.',
             'password.required'  => 'Password wajib diisi.',
             'password.min'       => 'Password minimal 6 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         if ($validator->fails()) {
@@ -78,9 +77,8 @@ class AkunController extends Controller
         ];
 
         if ($request->filled('password')) {
-            $rules['password']              = 'min:6|confirmed';
-            $messages['password.min']       = 'Password minimal 6 karakter.';
-            $messages['password.confirmed'] = 'Konfirmasi password tidak cocok.';
+            $rules['password']        = 'min:6';
+            $messages['password.min'] = 'Password minimal 6 karakter.';
         }
 
         $validator = Validator::make($request->all(), $rules, $messages);
